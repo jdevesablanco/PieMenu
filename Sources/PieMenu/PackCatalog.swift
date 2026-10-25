@@ -32,7 +32,7 @@ enum PackCatalog {
                 en: "Quits every app in one click, except the ones you pick.", released: true),
         PackApp(id: "com.jdevesablanco.piemenu", name: "PieMenu", cask: "piemenu", symbol: "circle.circle",
                 es: "Un menú circular junto al puntero con tus apps, atajos y Automator, con ⌃Tab.",
-                en: "A radial menu at the pointer with your apps, shortcuts and Automator, on ⌃Tab.", released: false),
+                en: "A radial menu at the pointer with your apps, shortcuts and Automator, on ⌃Tab.", released: true),
     ]
 
     static func t(_ es: String, _ en: String) -> String { isSpanish() ? es : en }

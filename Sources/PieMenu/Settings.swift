@@ -277,7 +277,12 @@ struct SettingsView: View {
                 Text(err)
                     .font(.caption).foregroundColor(.red)
             }
-            row(tr("Abrir al iniciar sesión", "Open at login"), tr("PieMenu vive en la barra de menús; así está listo siempre.", "PieMenu lives in the menu bar; this keeps it ready.")) {
+            row(tr("Mostrar en la barra de menús", "Show in menu bar"),
+                tr("Sin el icono, el atajo sigue funcionando. Para volver a estos Ajustes, abre PieMenu otra vez desde Spotlight, Launchpad o Aplicaciones.",
+                   "Without the icon the hotkey keeps working. To get back to these Settings, open PieMenu again from Spotlight, Launchpad or Applications.")) {
+                Toggle("", isOn: $store.config.showMenuBarIcon).labelsHidden().toggleStyle(.switch)
+            }
+            row(tr("Abrir al iniciar sesión", "Open at login"), tr("Así el atajo está listo siempre.", "Keeps the hotkey ready at all times.")) {
                 Toggle("", isOn: Binding(get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
                     .labelsHidden().toggleStyle(.switch)
             }

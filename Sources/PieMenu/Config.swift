@@ -86,6 +86,7 @@ struct Config: Codable, Equatable {
     var hotKey: HotKeySpec = .controlTab
     var slices: [Slice] = Config.defaultSlices
     var language: AppLanguage = .auto
+    var showMenuBarIcon = true
 
     init() {}
 
@@ -95,6 +96,7 @@ struct Config: Codable, Equatable {
         hotKey = try c.decodeIfPresent(HotKeySpec.self, forKey: .hotKey) ?? .controlTab
         slices = try c.decodeIfPresent([Slice].self, forKey: .slices) ?? Config.defaultSlices
         language = try c.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .auto
+        showMenuBarIcon = try c.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
     }
 
     static let defaultSlices: [Slice] = [

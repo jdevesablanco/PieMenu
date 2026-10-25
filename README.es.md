@@ -13,7 +13,7 @@ Una versión gratis y open source de los menús circulares con atajo de teclado.
 - **Cancelar**: Esc, ⌃Tab otra vez, un clic en el centro o fuera del menú.
 - **Qué puede hacer una porción**: abrir una app, un archivo o una carpeta (también apps de Automator), ejecutar un `.workflow` de Automator, ejecutar un atajo de Atajos por su nombre o un comando de shell.
 - **Aspecto nativo**: un anillo de cristal oscuro como los HUD del sistema, los iconos reales de las apps y el nombre de la porción en el centro. La app que estabas usando no pierde el foco.
-- **Atajo configurable** (⌃Tab por defecto), **abrir al iniciar sesión** opcional, español/inglés.
+- **Atajo configurable** (⌃Tab por defecto), **icono en la barra de menús** y **abrir al iniciar sesión** opcionales, español/inglés.
 
 ## Instalar
 
@@ -34,7 +34,7 @@ git clone https://github.com/jdevesablanco/PieMenu && cd PieMenu
 Scripts/install.sh   # compila, copia la app a /Applications y la abre
 ```
 
-PieMenu no tiene icono en el Dock: busca ◎ en la barra de menús. Haz clic → **Ajustes…** para preparar tus porciones.
+PieMenu no tiene icono en el Dock: busca ◎ en la barra de menús. Haz clic → **Ajustes…** para preparar tus porciones. Puedes ocultar el icono en *Ajustes → General*; el atajo sigue funcionando y, si vuelves a abrir PieMenu (Spotlight, Launchpad, *Aplicaciones*), se abren los Ajustes.
 
 ## Porciones
 
@@ -71,7 +71,6 @@ Del mismo autor, gratis y open source:
 |---|---|---|
 | [SplitExercises](https://github.com/jdevesablanco/SplitExercises) | Divide PDFs de ejercicios en una hoja por ejercicio, con clic derecho | Disponible |
 | [QuitAll](https://github.com/jdevesablanco/QuitAll) | Cierra todas las apps de un clic, menos las que elijas | Disponible |
-| RightYourClick | Tu clic derecho de Finder, con las acciones de todas tus apps en un solo sitio | Próximamente |
 | **PieMenu** | Un menú circular junto al puntero con tus apps, atajos y Automator | Esta app |
 
 La app muestra las mismas tarjetas en *Ajustes → Combina bien con*, detecta cuáles tienes e instala las demás con Homebrew o con el último `.pkg` de GitHub.

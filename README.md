@@ -13,7 +13,7 @@ A free, open-source take on hotkey pie menus. Put the things you launch all day 
 - **Cancel**: Esc, ⌃Tab again, a click in the centre or anywhere outside the menu.
 - **What a slice can do**: open an app, file or folder (Automator apps included), run an Automator `.workflow`, run a Shortcuts shortcut by name, or run a shell command.
 - **Native look**: a dark glass ring like the system HUDs, real app icons, the hovered slice's name in the centre. The app you were using keeps focus.
-- **Configurable hotkey** (default ⌃Tab), optional **open at login**, Spanish/English.
+- **Configurable hotkey** (default ⌃Tab), optional **menu bar icon** and **open at login**, Spanish/English.
 
 ## Install
 
@@ -34,7 +34,7 @@ git clone https://github.com/jdevesablanco/PieMenu && cd PieMenu
 Scripts/install.sh   # builds, copies the app to /Applications and opens it
 ```
 
-PieMenu has no Dock icon: look for ◎ in the menu bar. Click it → **Settings…** to set up your slices.
+PieMenu has no Dock icon: look for ◎ in the menu bar. Click it → **Settings…** to set up your slices. You can hide the icon in *Settings → General*; the hotkey keeps working, and opening PieMenu again (Spotlight, Launchpad, *Applications*) brings Settings back.
 
 ## Slices
 
@@ -71,7 +71,6 @@ Made by the same author, free and open source:
 |---|---|---|
 | [SplitExercises](https://github.com/jdevesablanco/SplitExercises) | Splits exercise PDFs into one sheet per exercise, from the right-click menu | Available |
 | [QuitAll](https://github.com/jdevesablanco/QuitAll) | Quits every app in one click, except the ones you pick | Available |
-| RightYourClick | Your Finder right-click, with every app's actions in one place | Coming soon |
 | **PieMenu** | A radial menu at the pointer with your apps, shortcuts and Automator | This app |
 
 The app shows the same cards in *Settings → Pairs well with*, detects which ones you have and installs the rest with Homebrew or the latest `.pkg` from GitHub.

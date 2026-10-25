@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import Combine
 import SwiftUI
 
@@ -7,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     lazy var pie = PieController(store: store)
     lazy var settings = SettingsModel(store: store, app: self)
 
-    private var statusItem: NSStatusItem!
+    private var statusItem: NSStatusItem?
     private var hotKey: HotKey?
     private var settingsWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
@@ -15,11 +16,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Snapshot.runIfRequested(store: store)
         PackCatalog.isSpanish = { Lang.isSpanish }
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        statusItem.button?.image = NSImage(systemSymbolName: "circle.circle", accessibilityDescription: "PieMenu")
-        let menu = NSMenu()
-        menu.delegate = self
-        statusItem.menu = menu
         NSApp.mainMenu = Self.mainMenu()
 
         store.$config
@@ -27,12 +23,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             .removeDuplicates()
             .sink { [weak self] spec in self?.registerHotKey(spec) }
             .store(in: &cancellables)
+        store.$config
+            .map(\.showMenuBarIcon)
+            .removeDuplicates()
+            .sink { [weak self] show in self?.setStatusItem(visible: show) }
+            .store(in: &cancellables)
 
-        if ProcessInfo.processInfo.arguments.contains("--settings") { openSettings() }
+        // Without the menu bar icon, opening the app yourself (Finder, Spotlight, Launchpad) is the way into Settings.
+        // Not when macOS starts it at login.
+        let defaultLaunch = (notification.userInfo?[NSApplication.launchIsDefaultUserInfoKey] as? Bool) ?? true
+        if ProcessInfo.processInfo.arguments.contains("--settings")
+            || (!store.config.showMenuBarIcon && defaultLaunch && !launchedAtLogin()) {
+            openSettings()
+        }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         openSettings()
+        return false
+    }
+
+    private func setStatusItem(visible: Bool) {
+        if visible, statusItem == nil {
+            let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+            item.button?.image = NSImage(systemSymbolName: "circle.circle", accessibilityDescription: "PieMenu")
+            let menu = NSMenu()
+            menu.delegate = self
+            item.menu = menu
+            statusItem = item
+        } else if !visible, let item = statusItem {
+            NSStatusBar.system.removeStatusItem(item)
+            statusItem = nil
+        }
+    }
+
+    /// Did macOS launch us at login? The open event says so; as a fallback (SMAppService doesn't always set it),
+    /// assume so if the session started less than 2 minutes ago.
+    private func launchedAtLogin() -> Bool {
+        if let ev = NSAppleEventManager.shared().currentAppleEvent, ev.eventID == AEEventID(kAEOpenApplication),
+           let d = ev.paramDescriptor(forKeyword: AEKeyword(keyAEPropData)), d.enumCodeValue == OSType(keyAELaunchedAsLogInItem) { return true }
+        if let lw = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.loginwindow").first?.launchDate,
+           Date().timeIntervalSince(lw) < 120 { return true }
         return false
     }
 
