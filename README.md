@@ -11,6 +11,7 @@ A free, open-source take on hotkey pie menus. Put the things you launch all day 
 - **Hold and release**: hold ⌃, press Tab, move the mouse toward a slice and let go of ⌃. The slice runs.
 - **Or click**: tap ⌃Tab (or let go in the centre) and the menu stays open; click a slice.
 - **Cancel**: Esc, ⌃Tab again, a click in the centre or anywhere outside the menu.
+- **While it's open**: ⌘, opens Settings. Right-click a slice to open it, edit it, show it in Finder or remove it; right-click the centre to add a slice or open Settings.
 - **What a slice can do**: open an app, file or folder (Automator apps included), run an Automator `.workflow`, run a Shortcuts shortcut by name, or run a shell command.
 - **Native look**: a dark glass ring like the system HUDs, real app icons, the hovered slice's name in the centre. The app you were using keeps focus.
 - **Configurable hotkey** (default ⌃Tab), optional **menu bar icon** and **open at login**, Spanish/English.

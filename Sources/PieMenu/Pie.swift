@@ -6,6 +6,7 @@ import Carbon.HIToolbox
 /// Holding the hotkey's modifiers and letting go over a slice runs it. Letting go in the
 /// centre (or tapping the hotkey) leaves the menu open so a slice can be clicked instead.
 /// Esc, the hotkey again, a click in the centre or anywhere outside the menu cancels.
+/// ⌘, opens Settings; a right-click shows a context menu for the slice under the pointer.
 final class PieController {
     static let radius: CGFloat = 132
     static let innerRadius: CGFloat = 48
@@ -15,11 +16,14 @@ final class PieController {
     private var view: PieView?
     private var timer: Timer?
     private var escKey: HotKey?
+    private var settingsKey: HotKey?
     private var clickMonitor: Any?
     private var waitingForRelease = false
     private var releaseModifiers: NSEvent.ModifierFlags = []
 
     var isShown: Bool { panel?.isVisible == true }
+    /// Opens Settings, optionally with a slice selected for editing.
+    var onOpenSettings: ((UUID?) -> Void)?
 
     init(store: ConfigStore) {
         self.store = store
@@ -48,6 +52,7 @@ final class PieController {
         view.onClick = { [weak self] index in
             if let index { self?.choose(index) } else { self?.dismiss() }
         }
+        view.onRightClick = { [weak self] index, event in self?.showContextMenu(for: index, event: event) }
         // Dark glass ring with a see-through hole, like the system HUDs.
         let effect = NSVisualEffectView(frame: view.bounds)
         effect.material = .hudWindow
@@ -71,7 +76,7 @@ final class PieController {
 
         releaseModifiers = store.config.hotKey.cocoaModifiers
         waitingForRelease = !releaseModifiers.isEmpty
-        escKey = HotKey(HotKeySpec(keyCode: UInt32(kVK_Escape), modifiers: 0)) { [weak self] in self?.dismiss() }
+        registerTemporaryKeys()
         clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             self?.dismiss()
         }
@@ -83,6 +88,7 @@ final class PieController {
         timer?.invalidate()
         timer = nil
         escKey = nil
+        settingsKey = nil
         if let clickMonitor { NSEvent.removeMonitor(clickMonitor) }
         clickMonitor = nil
         panel?.orderOut(nil)
@@ -100,6 +106,71 @@ final class PieController {
         if waitingForRelease, !held.contains(releaseModifiers) {
             waitingForRelease = false
             if let index = view.selected { choose(index) }
+        }
+    }
+
+    /// Esc and ⌘, only belong to PieMenu while the pie is on screen.
+    private func registerTemporaryKeys() {
+        escKey = HotKey(HotKeySpec(keyCode: UInt32(kVK_Escape), modifiers: 0)) { [weak self] in self?.dismiss() }
+        settingsKey = HotKey(HotKeySpec(keyCode: UInt32(kVK_ANSI_Comma), modifiers: UInt32(cmdKey))) { [weak self] in
+            self?.openSettings(nil)
+        }
+    }
+
+    private func openSettings(_ sliceID: UUID?) {
+        dismiss()
+        onOpenSettings?(sliceID)
+    }
+
+    private func showContextMenu(for index: Int?, event: NSEvent) {
+        guard let view else { return }
+        // The menu takes over from here: letting go of the hotkey must not also run a slice,
+        // and Esc has to reach the menu instead of closing the pie under it.
+        waitingForRelease = false
+        timer?.invalidate()
+        timer = nil
+        escKey = nil
+        settingsKey = nil
+        view.selected = index
+
+        let menu = NSMenu()
+        if let index, let slice = view.slices[safe: index] {
+            let name = slice.name.isEmpty ? tr("porción", "slice") : slice.name
+            menu.addItem(ClosureMenuItem(tr("Abrir «\(name)»", "Open “\(name)”")) { [weak self] in self?.choose(index) })
+            menu.addItem(ClosureMenuItem(tr("Editar «\(name)»…", "Edit “\(name)”…")) { [weak self] in self?.openSettings(slice.id) })
+            let path = (slice.target as NSString).expandingTildeInPath
+            if slice.kind == .open, FileManager.default.fileExists(atPath: path) {
+                menu.addItem(ClosureMenuItem(tr("Mostrar en Finder", "Show in Finder")) { [weak self] in
+                    self?.dismiss()
+                    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
+                })
+            }
+            menu.addItem(.separator())
+            menu.addItem(ClosureMenuItem(tr("Quitar del menú", "Remove from Pie")) { [weak self] in
+                self?.dismiss()
+                self?.store.config.slices.removeAll { $0.id == slice.id }
+            })
+            menu.addItem(.separator())
+        }
+        if store.config.slices.count < Config.maxSlices {
+            menu.addItem(ClosureMenuItem(tr("Añadir porción…", "Add Slice…")) { [weak self] in
+                guard let self else { return }
+                let new = Slice(name: tr("Nueva porción", "New slice"), kind: .open, target: "")
+                self.store.config.slices.append(new)
+                self.openSettings(new.id)
+            })
+        }
+        let settings = ClosureMenuItem(tr("Ajustes…", "Settings…")) { [weak self] in self?.openSettings(nil) }
+        settings.keyEquivalent = ","
+        settings.keyEquivalentModifierMask = .command
+        menu.addItem(settings)
+        menu.addItem(ClosureMenuItem(tr("Salir de PieMenu", "Quit PieMenu")) { NSApp.terminate(nil) })
+
+        NSMenu.popUpContextMenu(menu, with: event, for: view)
+        // Nothing picked (or the pick only closed the menu): back to click mode.
+        if isShown, self.view === view {
+            registerTemporaryKeys()
+            timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60, repeats: true) { [weak self] _ in self?.tick() }
         }
     }
 
@@ -133,6 +204,7 @@ final class PieView: NSView {
     let slices: [Slice]
     private let icons: [NSImage]
     var onClick: ((Int?) -> Void)?
+    var onRightClick: ((Int?, NSEvent) -> Void)?
     var selected: Int? {
         didSet { if selected != oldValue { needsDisplay = true } }
     }
@@ -184,6 +256,13 @@ final class PieView: NSView {
         let ringMid = (PieController.radius + PieController.innerRadius) / 2
         let spacing = 2 * .pi * ringMid / CGFloat(max(slices.count, 4))
         return min(50, spacing * 0.7)
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        let p = convert(event.locationInWindow, from: nil)
+        let dx = p.x - bounds.midX, dy = p.y - bounds.midY
+        guard hypot(dx, dy) <= PieController.radius else { onClick?(nil); return }
+        onRightClick?(Self.sliceIndex(dx: dx, dy: dy, count: slices.count), event)
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -318,6 +397,24 @@ enum SliceIcon {
             symbol.draw(in: NSRect(x: rect.midX - s.width / 2, y: rect.midY - s.height / 2, width: s.width, height: s.height))
             return true
         }
+    }
+}
+
+/// A menu item that runs a closure, so context menus don't need a target object per action.
+final class ClosureMenuItem: NSMenuItem {
+    private let handler: () -> Void
+
+    init(_ title: String, handler: @escaping () -> Void) {
+        self.handler = handler
+        super.init(title: title, action: #selector(fire), keyEquivalent: "")
+        target = self
+    }
+
+    required init(coder: NSCoder) { fatalError() }
+
+    @objc private func fire() {
+        // Let the menu finish closing before the action changes windows.
+        DispatchQueue.main.async(execute: handler)
     }
 }
 

@@ -11,6 +11,7 @@ Una versión gratis y open source de los menús circulares con atajo de teclado.
 - **Mantén y suelta**: mantén ⌃, pulsa Tab, mueve el ratón hacia una porción y suelta ⌃. La porción se ejecuta.
 - **O haz clic**: pulsa ⌃Tab y suelta (o suelta en el centro) y el menú se queda abierto; haz clic en una porción.
 - **Cancelar**: Esc, ⌃Tab otra vez, un clic en el centro o fuera del menú.
+- **Con el menú abierto**: ⌘, abre los Ajustes. Clic derecho en una porción para abrirla, editarla, mostrarla en Finder o quitarla; clic derecho en el centro para añadir una porción o abrir los Ajustes.
 - **Qué puede hacer una porción**: abrir una app, un archivo o una carpeta (también apps de Automator), ejecutar un `.workflow` de Automator, ejecutar un atajo de Atajos por su nombre o un comando de shell.
 - **Aspecto nativo**: un anillo de cristal oscuro como los HUD del sistema, los iconos reales de las apps y el nombre de la porción en el centro. La app que estabas usando no pierde el foco.
 - **Atajo configurable** (⌃Tab por defecto), **icono en la barra de menús** y **abrir al iniciar sesión** opcionales, español/inglés.

@@ -16,6 +16,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Snapshot.runIfRequested(store: store)
         PackCatalog.isSpanish = { Lang.isSpanish }
+        pie.onOpenSettings = { [weak self] id in
+            guard let self else { return }
+            if let id { self.settings.selectedID = id; self.settings.tab = 0 }
+            self.openSettings()
+        }
         NSApp.mainMenu = Self.mainMenu()
 
         store.$config
