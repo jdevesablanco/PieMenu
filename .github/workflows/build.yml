@@ -14,6 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Self-test (simulated pointer and keys, off screen)
+        run: |
+          swift build -c release
+          PIEMENU_SELFTEST=1 .build/release/PieMenu
+
       - name: Build PieMenu.app (universal, ad-hoc signed)
         run: |
           V="${GITHUB_REF_NAME#v}"; [[ "$GITHUB_REF" == refs/tags/v* ]] || V="0.0.0-dev"

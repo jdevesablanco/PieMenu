@@ -262,8 +262,8 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text(tr("Cómo se abre", "How it opens")).font(.title3.bold())
             row(tr("Atajo global", "Global shortcut"),
-                tr("Mantén las teclas modificadoras, mueve el ratón hacia una porción y suelta. Si sueltas en el centro, el menú se queda abierto para hacer clic. Funciona en cualquier app, sin permisos especiales.",
-                   "Hold the modifier keys, move toward a slice and let go. Let go in the centre and the menu stays open so you can click. Works in any app, no special permissions.")) {
+                tr("Abre el menú junto al puntero; haz clic en una porción para ejecutarla. Pasar el ratón por encima solo la resalta. Funciona en cualquier app, sin permisos especiales.",
+                   "Opens the menu at the pointer; click a slice to run it. Hovering only highlights it. Works in any app, no special permissions.")) {
                 HStack(spacing: 8) {
                     Button(model.recording ? tr("Pulsa las teclas… (Esc cancela)", "Press keys… (Esc to cancel)") : store.config.hotKey.display) {
                         model.recording ? model.stopRecording() : model.startRecording()

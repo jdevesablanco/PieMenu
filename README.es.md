@@ -1,15 +1,14 @@
 # PieMenu
 
-**Un menú circular junto al puntero: pulsa ⌃Tab, mueve el ratón hacia una porción y suelta. Abre apps, archivos, carpetas, flujos de Automator, atajos de Atajos y comandos de shell.**
+**Un menú circular junto al puntero: pulsa ⌃Tab y haz clic en una porción. Abre apps, archivos, carpetas, flujos de Automator, atajos de Atajos y comandos de shell.**
 
 [English](README.md) · macOS 13+ · Apple Silicon e Intel · licencia MIT · sin red, sin cuentas
 
 <p align="center"><img src="docs/images/pie.png" width="368" alt="PieMenu abierto junto al puntero, con Música resaltada"></p>
 
-Una versión gratis y open source de los menús circulares con atajo de teclado. Pon en hasta ocho porciones lo que abres todo el día y llega a cualquiera con un solo gesto, sin salir de la app en la que estás.
+Una versión gratis y open source de los menús circulares con atajo de teclado. Pon en hasta ocho porciones lo que abres todo el día y llega a cualquiera con un atajo y un clic, sin salir de la app en la que estás.
 
-- **Mantén y suelta**: mantén ⌃, pulsa Tab, mueve el ratón hacia una porción y suelta ⌃. La porción se ejecuta.
-- **O haz clic**: pulsa ⌃Tab y suelta (o suelta en el centro) y el menú se queda abierto; haz clic en una porción.
+- **Clic para ejecutar**: pulsa ⌃Tab y el menú se abre junto al puntero; haz clic en una porción para ejecutarla. Pasar el ratón por encima solo la resalta, así nada se ejecuta sin querer.
 - **Cancelar**: Esc, ⌃Tab otra vez, un clic en el centro o fuera del menú.
 - **Con el menú abierto**: ⌘, abre los Ajustes. Clic derecho en una porción para abrirla, editarla, mostrarla en Finder o quitarla; clic derecho en el centro para añadir una porción o abrir los Ajustes.
 - **Qué puede hacer una porción**: abrir una app, un archivo o una carpeta (también apps de Automator), ejecutar un `.workflow` de Automator, ejecutar un atajo de Atajos por su nombre o un comando de shell.
@@ -50,7 +49,7 @@ Cada porción tiene un nombre, un icono (un SF Symbol, o déjalo vacío para usa
 
 De 1 a 8 porciones, empezando a las 12 y en el sentido de las agujas del reloj. Cámbialas de orden con las flechas en *Ajustes → Porciones*. Si una acción falla, PieMenu te dice por qué.
 
-**Truco:** una app de Automator o un atajo pueden hacer varias cosas a la vez, como abrir las tres apps que usas para un proyecto o cerrarlo todo. Ponlo en una porción y tendrás toda esa rutina a un gesto.
+**Truco:** una app de Automator o un atajo pueden hacer varias cosas a la vez, como abrir las tres apps que usas para un proyecto o cerrarlo todo. Ponlo en una porción y tendrás toda esa rutina a un clic.
 
 ## Limitaciones
 
@@ -79,6 +78,7 @@ La app muestra las mismas tarjetas en *Ajustes → Combina bien con*, detecta cu
 ## Desarrollo
 
 - `Sources/PieMenu`: app SwiftUI/AppKit de barra de menús (atajo, panel circular, acciones, ajustes). `PackCatalog.swift` es idéntico en todas las apps del pack.
+- `PIEMENU_SELFTEST=1 build/PieMenu.app/Contents/MacOS/PieMenu` maneja el menú con un puntero y teclas simulados, fuera de pantalla, y comprueba que pasar el ratón nunca ejecuta una porción y hacer clic sí (sin eventos reales: puedes seguir trabajando).
 - `PIEMENU_CONFIG_DIR=/dir` aísla los ajustes; `PIEMENU_SNAPSHOT=/dir build/PieMenu.app/Contents/MacOS/PieMenu` renderiza el menú a PNG y sale (un tinte oscuro sustituye al desenfoque real del cristal).
 - `Scripts/build-app.sh` compila `build/PieMenu.app`; `Scripts/make-dmg.sh` y `Scripts/make-pkg.sh` la empaquetan; `Scripts/install.sh` la instala en `/Applications`.
 - Versiones: `Scripts/release.sh X.Y.Z` crea el tag y hace push; GitHub Actions compila la app universal y adjunta el DMG y el PKG a la release.

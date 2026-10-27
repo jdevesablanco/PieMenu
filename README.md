@@ -1,15 +1,14 @@
 # PieMenu
 
-**A radial menu at your pointer: press ⌃Tab, flick toward a slice, let go. It opens apps, files, folders, Automator workflows, Shortcuts and shell commands.**
+**A radial menu at your pointer: press ⌃Tab, click a slice. It opens apps, files, folders, Automator workflows, Shortcuts and shell commands.**
 
 [Español](README.es.md) · macOS 13+ · Apple Silicon & Intel · MIT licence · no network, no accounts
 
 <p align="center"><img src="docs/images/pie.png" width="368" alt="PieMenu open at the pointer, with Music highlighted"></p>
 
-A free, open-source take on hotkey pie menus. Put the things you launch all day on up to eight slices and reach any of them with one gesture, without leaving the app you're in.
+A free, open-source take on hotkey pie menus. Put the things you launch all day on up to eight slices and reach any of them with a shortcut and a click, without leaving the app you're in.
 
-- **Hold and release**: hold ⌃, press Tab, move the mouse toward a slice and let go of ⌃. The slice runs.
-- **Or click**: tap ⌃Tab (or let go in the centre) and the menu stays open; click a slice.
+- **Click to run**: press ⌃Tab and the menu opens around the pointer; click a slice to run it. Hovering only highlights it, so nothing runs by accident.
 - **Cancel**: Esc, ⌃Tab again, a click in the centre or anywhere outside the menu.
 - **While it's open**: ⌘, opens Settings. Right-click a slice to open it, edit it, show it in Finder or remove it; right-click the centre to add a slice or open Settings.
 - **What a slice can do**: open an app, file or folder (Automator apps included), run an Automator `.workflow`, run a Shortcuts shortcut by name, or run a shell command.
@@ -50,7 +49,7 @@ Each slice has a name, an icon (an SF Symbol, or leave it empty to use the file'
 
 From 1 to 8 slices, starting at 12 o'clock and going clockwise. Reorder them with the arrows in *Settings → Slices*. If an action fails, PieMenu tells you why.
 
-**Tip:** an Automator app or a shortcut can do several things at once, like opening the three apps you use for a project or quitting everything. Put it on a slice and that whole routine is one flick away.
+**Tip:** an Automator app or a shortcut can do several things at once, like opening the three apps you use for a project or quitting everything. Put it on a slice and that whole routine is one click away.
 
 ## Limitations
 
@@ -79,6 +78,7 @@ The app shows the same cards in *Settings → Pairs well with*, detects which on
 ## Development
 
 - `Sources/PieMenu`: SwiftUI/AppKit menu bar app (hotkey, pie panel, actions, settings). `PackCatalog.swift` is shared verbatim by every app of the pack.
+- `PIEMENU_SELFTEST=1 build/PieMenu.app/Contents/MacOS/PieMenu` drives the pie with a simulated pointer and keys, off screen, and checks that hovering never runs a slice and clicking does (no real input, safe while you work).
 - `PIEMENU_CONFIG_DIR=/dir` isolates settings; `PIEMENU_SNAPSHOT=/dir build/PieMenu.app/Contents/MacOS/PieMenu` renders the pie to PNG and quits (a dark tint stands in for the live glass blur).
 - `Scripts/build-app.sh` builds `build/PieMenu.app`; `Scripts/make-dmg.sh` and `Scripts/make-pkg.sh` package it; `Scripts/install.sh` installs it into `/Applications`.
 - Releases: `Scripts/release.sh X.Y.Z` tags and pushes; GitHub Actions builds the universal app and attaches the DMG and PKG to the release.

@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Snapshot.runIfRequested(store: store)
+        SelfTest.runIfRequested()
         PackCatalog.isSpanish = { Lang.isSpanish }
         pie.onOpenSettings = { [weak self] id in
             guard let self else { return }

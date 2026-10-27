@@ -3,8 +3,7 @@ import Carbon.HIToolbox
 
 /// Shows the radial menu around the cursor and decides which slice gets run.
 ///
-/// Holding the hotkey's modifiers and letting go over a slice runs it. Letting go in the
-/// centre (or tapping the hotkey) leaves the menu open so a slice can be clicked instead.
+/// Hovering only highlights a slice; it runs when clicked. Letting go of the hotkey keeps the menu open.
 /// Esc, the hotkey again, a click in the centre or anywhere outside the menu cancels.
 /// ⌘, opens Settings; a right-click shows a context menu for the slice under the pointer.
 final class PieController {
@@ -13,7 +12,7 @@ final class PieController {
 
     private let store: ConfigStore
     private var panel: PiePanel?
-    private var view: PieView?
+    private(set) var view: PieView?
     private var timer: Timer?
     private var escKey: HotKey?
     private var settingsKey: HotKey?
@@ -22,6 +21,15 @@ final class PieController {
     private var releaseModifiers: NSEvent.ModifierFlags = []
 
     var isShown: Bool { panel?.isVisible == true }
+    var highlighted: Int? { view?.selected }
+    /// Where the pointer is and which modifiers are held. Replaced by the self-test, which drives the pie without real input.
+    var pointer: () -> NSPoint = { NSEvent.mouseLocation }
+    // NSEvent.modifierFlags goes stale while another app is active; ask the window server.
+    var heldModifiers: () -> NSEvent.ModifierFlags = {
+        NSEvent.ModifierFlags(rawValue: UInt(CGEventSource.flagsState(.combinedSessionState).rawValue))
+    }
+    /// Off for the self-test: no system-wide Esc/⌘, keys or click monitor, and the panel stays off screen.
+    var usesSystemInput = true
     /// Opens Settings, optionally with a slice selected for editing.
     var onOpenSettings: ((UUID?) -> Void)?
 
@@ -39,8 +47,8 @@ final class PieController {
         guard !slices.isEmpty else { return }
 
         let size = (Self.radius + 12) * 2
-        let mouse = NSEvent.mouseLocation
-        let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
+        let mouse = pointer()
+        let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? (usesSystemInput ? NSScreen.main : nil)
         var frame = NSRect(x: mouse.x - size / 2, y: mouse.y - size / 2, width: size, height: size)
         if let sf = screen?.frame {
             frame.origin.x = min(max(frame.minX, sf.minX), sf.maxX - size)
@@ -76,9 +84,11 @@ final class PieController {
 
         releaseModifiers = store.config.hotKey.cocoaModifiers
         waitingForRelease = !releaseModifiers.isEmpty
-        registerTemporaryKeys()
-        clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            self?.dismiss()
+        if usesSystemInput {
+            registerTemporaryKeys()
+            clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+                self?.dismiss()
+            }
         }
         timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60, repeats: true) { [weak self] _ in self?.tick() }
         tick()
@@ -95,17 +105,15 @@ final class PieController {
         view = nil
     }
 
-    private func tick() {
+    func tick() {
         guard let panel, let view else { return }
         let c = NSPoint(x: panel.frame.midX, y: panel.frame.midY)
-        let m = NSEvent.mouseLocation
+        let m = pointer()
         view.selected = PieView.sliceIndex(dx: m.x - c.x, dy: m.y - c.y, count: view.slices.count)
 
-        // NSEvent.modifierFlags goes stale while another app is active; ask the window server.
-        let held = NSEvent.ModifierFlags(rawValue: UInt(CGEventSource.flagsState(.combinedSessionState).rawValue))
-        if waitingForRelease, !held.contains(releaseModifiers) {
+        if waitingForRelease, !heldModifiers().contains(releaseModifiers) {
+            // Only remembered so that a fresh press of the hotkey closes the menu; nothing runs on release.
             waitingForRelease = false
-            if let index = view.selected { choose(index) }
         }
     }
 
@@ -169,7 +177,7 @@ final class PieController {
         NSMenu.popUpContextMenu(menu, with: event, for: view)
         // Nothing picked (or the pick only closed the menu): back to click mode.
         if isShown, self.view === view {
-            registerTemporaryKeys()
+            if usesSystemInput { registerTemporaryKeys() }
             timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60, repeats: true) { [weak self] _ in self?.tick() }
         }
     }
