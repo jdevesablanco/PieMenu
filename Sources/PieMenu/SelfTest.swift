@@ -89,6 +89,35 @@ enum SelfTest {
         wait(5) { !ran().isEmpty }
         check(ran() == "right\n", "clicking the right slice runs the right slice")
 
+        // 6. The default is "on click"; "on release" is opt-in.
+        check(Config().runOnRelease == false, "default is run on click")
+
+        // 7. With "on release": letting go over the bottom slice runs it and closes the pie…
+        store.config.runOnRelease = true
+        try? FileManager.default.removeItem(at: marker)
+        pointer = origin
+        held = .control
+        pie.toggle()
+        pointer = NSPoint(x: origin.x, y: origin.y - 90)
+        pie.tick()
+        held = []
+        pie.tick()
+        check(!pie.isShown, "on release: letting go over a slice closes the pie")
+        wait(5) { !ran().isEmpty }
+        check(ran() == "bottom\n", "on release: letting go over a slice runs it")
+
+        // …letting go in the centre keeps it open, and a click still runs a slice.
+        try? FileManager.default.removeItem(at: marker)
+        pointer = origin
+        held = .control
+        pie.toggle()
+        held = []
+        pie.tick()
+        check(pie.isShown, "on release: letting go in the centre keeps it open")
+        click(-90, 0)
+        wait(5) { !ran().isEmpty }
+        check(ran() == "left\n", "on release: clicking still runs a slice")
+
         try? FileManager.default.removeItem(at: dir)
         print(failures == 0 ? "OK" : "\(failures) failed")
         exit(failures == 0 ? 0 : 1)

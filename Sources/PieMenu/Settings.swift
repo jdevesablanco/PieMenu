@@ -262,8 +262,8 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text(tr("Cómo se abre", "How it opens")).font(.title3.bold())
             row(tr("Atajo global", "Global shortcut"),
-                tr("Abre el menú junto al puntero; haz clic en una porción para ejecutarla. Pasar el ratón por encima solo la resalta. Funciona en cualquier app, sin permisos especiales.",
-                   "Opens the menu at the pointer; click a slice to run it. Hovering only highlights it. Works in any app, no special permissions.")) {
+                tr("Abre el menú junto al puntero. Funciona en cualquier app, sin permisos especiales.",
+                   "Opens the menu at the pointer. Works in any app, no special permissions.")) {
                 HStack(spacing: 8) {
                     Button(model.recording ? tr("Pulsa las teclas… (Esc cancela)", "Press keys… (Esc to cancel)") : store.config.hotKey.display) {
                         model.recording ? model.stopRecording() : model.startRecording()
@@ -276,6 +276,15 @@ struct SettingsView: View {
             if let err = model.hotKeyError {
                 Text(err)
                     .font(.caption).foregroundColor(.red)
+            }
+            row(tr("Ejecutar una porción", "Run a slice"),
+                tr("«Al hacer clic»: pasar el ratón por encima solo la resalta. «Al soltar el atajo»: mantén las teclas, mueve el ratón hacia la porción y suelta (el clic también funciona; si sueltas en el centro, el menú se queda abierto).",
+                   "“On click”: hovering only highlights it. “On release”: hold the keys, move toward the slice and let go (clicking works too; let go in the centre and the menu stays open).")) {
+                Picker("", selection: $store.config.runOnRelease) {
+                    Text(tr("Al hacer clic", "On click")).tag(false)
+                    Text(tr("Al soltar el atajo", "On release")).tag(true)
+                }
+                .labelsHidden().fixedSize()
             }
             row(tr("Mostrar en la barra de menús", "Show in menu bar"),
                 tr("Sin el icono, el atajo sigue funcionando. Para volver a estos Ajustes, abre PieMenu otra vez desde Spotlight, Launchpad o Aplicaciones.",

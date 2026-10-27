@@ -9,6 +9,7 @@
 A free, open-source take on hotkey pie menus. Put the things you launch all day on up to eight slices and reach any of them with a shortcut and a click, without leaving the app you're in.
 
 - **Click to run**: press ⌃Tab and the menu opens around the pointer; click a slice to run it. Hovering only highlights it, so nothing runs by accident.
+- **Or run on release** (optional, *Settings → General → Run a slice*): hold ⌃, press Tab, move toward a slice and let go of ⌃. Clicking still works, and letting go in the centre keeps the menu open.
 - **Cancel**: Esc, ⌃Tab again, a click in the centre or anywhere outside the menu.
 - **While it's open**: ⌘, opens Settings. Right-click a slice to open it, edit it, show it in Finder or remove it; right-click the centre to add a slice or open Settings.
 - **What a slice can do**: open an app, file or folder (Automator apps included), run an Automator `.workflow`, run a Shortcuts shortcut by name, or run a shell command.

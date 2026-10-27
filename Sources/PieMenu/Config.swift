@@ -87,6 +87,8 @@ struct Config: Codable, Equatable {
     var slices: [Slice] = Config.defaultSlices
     var language: AppLanguage = .auto
     var showMenuBarIcon = true
+    /// false (default): a slice runs only when clicked. true: letting go of the hotkey over a slice also runs it.
+    var runOnRelease = false
 
     init() {}
 
@@ -97,6 +99,7 @@ struct Config: Codable, Equatable {
         slices = try c.decodeIfPresent([Slice].self, forKey: .slices) ?? Config.defaultSlices
         language = try c.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .auto
         showMenuBarIcon = try c.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
+        runOnRelease = try c.decodeIfPresent(Bool.self, forKey: .runOnRelease) ?? false
     }
 
     static let defaultSlices: [Slice] = [

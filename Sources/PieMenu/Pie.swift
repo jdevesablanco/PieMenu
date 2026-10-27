@@ -3,7 +3,8 @@ import Carbon.HIToolbox
 
 /// Shows the radial menu around the cursor and decides which slice gets run.
 ///
-/// Hovering only highlights a slice; it runs when clicked. Letting go of the hotkey keeps the menu open.
+/// By default hovering only highlights a slice and it runs when clicked; letting go of the hotkey keeps the menu open.
+/// With "run on release" on (Settings → General), letting go of the hotkey over a slice runs it too.
 /// Esc, the hotkey again, a click in the centre or anywhere outside the menu cancels.
 /// ⌘, opens Settings; a right-click shows a context menu for the slice under the pointer.
 final class PieController {
@@ -112,8 +113,9 @@ final class PieController {
         view.selected = PieView.sliceIndex(dx: m.x - c.x, dy: m.y - c.y, count: view.slices.count)
 
         if waitingForRelease, !heldModifiers().contains(releaseModifiers) {
-            // Only remembered so that a fresh press of the hotkey closes the menu; nothing runs on release.
+            // Also remembered so that a fresh press of the hotkey closes the menu.
             waitingForRelease = false
+            if store.config.runOnRelease, let index = view.selected { choose(index) }
         }
     }
 
