@@ -1,6 +1,6 @@
 # Copia de referencia del cask publicado en jdevesablanco/homebrew-tap (Casks/piemenu.rb).
 cask "piemenu" do
-  version "1.0.1"
+  version "1.0.2"
   sha256 "f98f12759b0e7570cce2ed6adbcba863ac4152052c5e642b821ab056858138c3"
 
   url "https://github.com/jdevesablanco/PieMenu/releases/download/v#{version}/PieMenu-#{version}.dmg"
